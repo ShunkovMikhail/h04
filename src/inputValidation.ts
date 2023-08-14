@@ -80,3 +80,27 @@ export const postVdChain = [
 ]
 
 
+
+export const blogPostVdChain = [
+
+    body('title', 'Incorrect format!')
+        .trim()
+        .notEmpty()
+        .bail()
+        .isLength({min: 1, max: 30}).withMessage('Too many characters! (maxLength: 30)'),
+
+    body('shortDescription', 'Incorrect format!')
+        .trim()
+        .notEmpty()
+        .bail()
+        .isLength({min: 1, max: 100}).withMessage('Too many characters! (maxLength: 100)'),
+
+    body('content', 'Incorrect format!')
+        .trim()
+        .notEmpty()
+        .bail()
+        .isLength({min: 1, max: 1000}).withMessage('Too many characters! (maxLength: 1000)')
+
+]
+
+

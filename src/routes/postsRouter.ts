@@ -1,56 +1,57 @@
-import { Request, Response, Router } from 'express'
-import { DB, admins } from '../repositories/mongo-db'
+import { Response, Router } from 'express'
+import { admins } from '../repositories/mongo-db'
 import {
-    TypeOfRequestP, TypeOfRequestBody, TypeOfRequestP_Body,
-    PostViewModel, PostInputModel
-} from "../types/models"
+    TypeOfRequestP,
+    TypeOfRequestP_Body,
+    PostInputModel,
+    TypeOfRequestQuery,
+    Paginator,
+    PostViewModel,
+    APIErrorResult
+} from '../types/models'
 
-import basicAuth from "express-basic-auth"
-import { Result, validationResult } from "express-validator";
-import { postVdChain } from "../inputValidation";
-import {postsRepo} from "../repositories/posts-repository";
+import basicAuth from 'express-basic-auth'
+import { Result, validationResult } from 'express-validator'
+import { postVdChain } from '../inputValidation'
+import { ErrorMapper } from '../utils/errorMapper'
+import { postsService } from '../domain/posts-service'
+import { postsQueryRepo } from '../repositories/posts-query-repository'
 
 export const postsRouter = Router({})
 
 
 
-postsRouter.post('/', basicAuth({users: admins}), postVdChain, async (req: TypeOfRequestBody<PostInputModel>, res: Response) => {
+postsRouter.post('/', basicAuth({users: admins}), postVdChain, async (req: TypeOfRequestP_Body<{ id: string }, PostInputModel>, res: Response<PostViewModel | APIErrorResult>) => {
 
     const result: Result = validationResult(req);
 
     if (result.isEmpty()) {
-
-        const newEntry: PostViewModel = {
-            id: await postsRepo.newID(),
-            blogId: req.body.blogId,
-            blogName: await DB.getProperty('blogs', req.body.blogId, 'name'),
-            title: req.body.title,
-            shortDescription: req.body.shortDescription,
-            content: req.body.content,
-            createdAt: new Date().toISOString()
-        }
-
-        await postsRepo.create({ ...newEntry })
-        res.status(201).json(newEntry)
+        res.status(201).json(await postsService.create(req))
     } else {
-        res.status(400).json({errorsMessages: result.array().map(({path, msg}) => ({message: msg, field: path}))})
+        res.status(400).json(await ErrorMapper(result))
     }
 })
 
 
 
-postsRouter.get('/', async (req: Request, res: Response<Array<object | null>>) => {
-    res.status(200).json(await postsRepo.getAll())
+postsRouter.get('/', async (req: TypeOfRequestQuery<{
+    searchNameTerm: string,
+    sortBy: string,
+    sortDirection: string,
+    pageNumber: string,
+    pageSize: string }>, res: Response<Paginator<PostViewModel | null>>) => {
+
+    res.status(200).json(await postsQueryRepo.getAll(req))
 })
 
 
 
-postsRouter.get('/:id', async (req: TypeOfRequestP<{ id: string }>, res: Response<object | null>) => {
+postsRouter.get('/:id', async (req: TypeOfRequestP<{ id: string }>, res: Response<PostViewModel | null>) => {
 
-    if (!await postsRepo.exists(req.params.id)) {
+    if (!await postsQueryRepo.exists(req.params.id)) {
         res.sendStatus(404)
     } else {
-        res.status(200).json(await postsRepo.get(req.params.id))
+        res.status(200).json(await postsQueryRepo.get(req.params.id))
     }
 })
 
@@ -58,26 +59,16 @@ postsRouter.get('/:id', async (req: TypeOfRequestP<{ id: string }>, res: Respons
 
 postsRouter.put('/:id', basicAuth({users: admins}), postVdChain, async (req: TypeOfRequestP_Body<{ id: string },
     PostInputModel>, res: Response) => {
-    if (!await postsRepo.exists(req.params.id)) {
+    if (!await postsQueryRepo.exists(req.params.id)) {
         res.sendStatus(404)
     } else {
 
         const result: Result = validationResult(req)
 
         if (result.isEmpty()) {
-
-            const updateEntry: PostInputModel = {
-                blogId: req.body.blogId,
-                title: req.body.title,
-                shortDescription: req.body.shortDescription,
-                content: req.body.content
-            }
-
-            await postsRepo.update(req.params.id, updateEntry)
-            res.sendStatus(204)
-
+            res.sendStatus(await postsService.update(req))
         } else {
-            res.status(400).json({errorsMessages: result.array().map(({path, msg}) => ({message: msg, field: path}))})
+            res.status(400).json(await ErrorMapper(result))
         }
     }
 })
@@ -85,7 +76,7 @@ postsRouter.put('/:id', basicAuth({users: admins}), postVdChain, async (req: Typ
 
 
 postsRouter.delete('/:id', basicAuth({users: admins}), async (req: TypeOfRequestP<{ id: string }>, res: Response) => {
-    res.sendStatus(await postsRepo.delete(req.params.id))
+    res.sendStatus(await postsService.delete(req))
 })
 
 

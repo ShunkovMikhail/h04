@@ -1,5 +1,6 @@
 import { client } from "./connection"
 import { v4 as uuid } from 'uuid'
+import { Sort } from 'mongodb'
 
 //------------------ setup -----------------------
 const db = client.db('data')
@@ -12,16 +13,20 @@ export const DB = {
         await db.collection(collection).insertOne(input)
     },
 
-    async get(collection: string, id: string): Promise<object | null> {
-        const entry = await db.collection(collection).findOne({id: id},{projection:{_id: 0}})
+    async getOne(collection: string, query: object, project: object): Promise<object | null> {
+        const entry = await db.collection(collection).findOne(query, {projection:{ ...project, _id: 0 }})
         if (entry) {
             return entry
         }
         return null
     },
 
-    async getAll(collection: string): Promise<Array<object | null>> {
-        return db.collection(collection).find({},{projection:{_id: 0}}).toArray()
+    async getAll(collection: string, query: object, project: object, sort: object, S: number, L: number): Promise<Array<object | null>> {
+        return db.collection(collection).find(query, {projection:{ ...project, _id: 0 }}).sort({ ...sort }).skip(S).limit(L).toArray()
+    },
+
+    async getAllUnrestricted(collection: string, query: object, project: object): Promise<Array<object | null>> {
+        return db.collection(collection).find(query, {projection:{ ...project, _id: 0 }}).toArray()
     },
 
     async getProperty(collection: string, id: string, property: string) {
@@ -66,14 +71,18 @@ export const DB = {
     async exists(collection: string, id: string): Promise<boolean> {
         const entry = await db.collection(collection).findOne({id: id})
         return !!entry
+    },
+
+    async countResults(collection: string, query: object): Promise<number> {
+        return db.collection(collection).countDocuments(query)
     }
 
 }
 
 
 
-//Take from database actual value for admins and assign it when it gets resolved
-DB.getAll('admins').then((value) => {
+//Takes from database actual value for admins and assign it when it gets resolved
+DB.getAllUnrestricted('admins', {}, {}).then((value) => {
     // @ts-ignore
     admins = Object.fromEntries(value.map(e => [e.login, e.password]))
 })

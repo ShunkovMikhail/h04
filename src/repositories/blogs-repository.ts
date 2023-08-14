@@ -7,14 +7,6 @@ export const blogsRepo = {
         await DB.create('blogs', input)
     },
 
-    async get(id: string): Promise<BlogViewModel | null> {
-        return await DB.get('blogs', id) as BlogViewModel | null
-    },
-
-    async getAll(): Promise<Array<BlogViewModel | null>> {
-        return await DB.getAll('blogs') as Array<BlogViewModel | null>
-    },
-
     async update(id: string, input: BlogInputModel) {
         await DB.update('blogs', id, input)
     },
@@ -26,10 +18,6 @@ export const blogsRepo = {
     async newID(): Promise<string> {
         return DB.generateUUID()
     },
-
-    async exists(id: string): Promise<boolean> {
-        return DB.exists('blogs', id)
-    }
 
 }
 
