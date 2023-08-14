@@ -22,7 +22,7 @@ export const postsQueryRepo = {
         const resCount = await DB.countResults('blogs', {})
         const pCount = Math.ceil(resCount / pageSize)
         const S = (pageNumber - 1) * pageSize
-        const L = pageNumber * pageSize
+        const L = pageSize
 
         const page: Paginator<PostViewModel | null> = {
             pagesCount: pCount,
@@ -50,7 +50,7 @@ export const postsQueryRepo = {
         const resCount = await DB.countResults('blogs', {blogId: req.params.id})
         const pCount = Math.ceil(resCount / pageSize)
         const S = (pageNumber - 1) * pageSize
-        const L = pageNumber * pageSize
+        const L = pageSize
 
         const page: Paginator<PostViewModel | null> = {
             pagesCount: pCount,

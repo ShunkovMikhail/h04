@@ -15,7 +15,7 @@ export const blogsQueryRepo = {
         pageNumber: string,
         pageSize: string }>): Promise<Paginator<BlogViewModel | null>> {
 
-        const searchNameTerm = setDefault(req.query.searchNameTerm, '')
+        const searchNameTerm = setDefault(req.query.searchNameTerm, '.')
         const sortBy = setDefault(req.query.sortBy, 'createdAt')
         const sortDirection = setDefault(req.query.sortDirection, 'desc')
         const pageNumber = parseInt( setDefault(req.query.pageNumber, 1), 10 )
@@ -24,7 +24,7 @@ export const blogsQueryRepo = {
         const resCount = await DB.countResults('blogs', {'name': { '$regex': searchNameTerm, '$options': 'i' } })
         const pCount = Math.ceil(resCount / pageSize)
         const S = (pageNumber - 1) * pageSize
-        const L = pageNumber * pageSize
+        const L = pageSize
 
         const page: Paginator<BlogViewModel | null> = {
             pagesCount: pCount,

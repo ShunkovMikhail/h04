@@ -44,12 +44,15 @@ blogsRouter.post('/:id/posts', basicAuth({users: admins}), blogPostVdChain, asyn
 
     const result: Result = validationResult(req)
 
-    if (result.isEmpty()) {
-        res.status(201).json(await postsService.createByBlog(req, req.params.id))
+    if (await blogsQueryRepo.exists(req.params.id)) {
+        if (result.isEmpty()) {
+            res.status(201).json(await postsService.createByBlog(req, req.params.id))
+        } else {
+            res.status(400).json(await ErrorMapper(result))
+        }
     } else {
-        res.status(400).json(await ErrorMapper(result))
+        res.sendStatus(404)
     }
-
 })
 
 
@@ -83,11 +86,10 @@ blogsRouter.get('/:id/posts', async (req: TypeOfRequestP_Query<{ id: string }, {
     pageNumber: string,
     pageSize: string }>, res: Response<object | null>) => {
 
-    if (!await blogsQueryRepo.exists(req.params.id)) {
-        res.sendStatus(404)
-    } else {
-        //all posts for current blog
+    if (await blogsQueryRepo.exists(req.params.id)) {
         res.status(200).json(await postsQueryRepo.getAllByBlog(req))
+    } else {
+        res.sendStatus(404)
     }
 })
 
