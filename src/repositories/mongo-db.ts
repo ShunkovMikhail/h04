@@ -1,6 +1,5 @@
 import { client } from "./connection"
 import { v4 as uuid } from 'uuid'
-import { Sort } from 'mongodb'
 
 //------------------ setup -----------------------
 const db = client.db('data')

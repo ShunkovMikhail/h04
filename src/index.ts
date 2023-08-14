@@ -1,5 +1,5 @@
 import { app } from './app'
-import { runDb } from "./repositories/connection";
+import { runDb } from './repositories/connection'
 const port = 3000
 
 const startApp = async () => {

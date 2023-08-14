@@ -48,10 +48,10 @@ postsRouter.get('/', async (req: TypeOfRequestQuery<{
 
 postsRouter.get('/:id', async (req: TypeOfRequestP<{ id: string }>, res: Response<PostViewModel | null>) => {
 
-    if (!await postsQueryRepo.exists(req.params.id)) {
-        res.sendStatus(404)
-    } else {
+    if (await postsQueryRepo.exists(req.params.id)) {
         res.status(200).json(await postsQueryRepo.get(req.params.id))
+    } else {
+        res.sendStatus(404)
     }
 })
 
@@ -59,9 +59,7 @@ postsRouter.get('/:id', async (req: TypeOfRequestP<{ id: string }>, res: Respons
 
 postsRouter.put('/:id', basicAuth({users: admins}), postVdChain, async (req: TypeOfRequestP_Body<{ id: string },
     PostInputModel>, res: Response) => {
-    if (!await postsQueryRepo.exists(req.params.id)) {
-        res.sendStatus(404)
-    } else {
+    if (await postsQueryRepo.exists(req.params.id)) {
 
         const result: Result = validationResult(req)
 
@@ -70,6 +68,8 @@ postsRouter.put('/:id', basicAuth({users: admins}), postVdChain, async (req: Typ
         } else {
             res.status(400).json(await ErrorMapper(result))
         }
+    } else {
+        res.sendStatus(404)
     }
 })
 

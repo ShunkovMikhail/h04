@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import { DB } from './repositories/mongo-db'
-import { blogsRouter } from "./routes/blogsRouter"
-import { postsRouter } from "./routes/postsRouter"
+import { blogsRouter } from './routes/blogsRouter'
+import { postsRouter } from './routes/postsRouter'
 
 export const app = express()
 

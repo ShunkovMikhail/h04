@@ -1,6 +1,6 @@
 import { DB } from './mongo-db'
-import {BlogViewModel, Paginator, PostViewModel, TypeOfRequestP_Query, TypeOfRequestQuery} from '../types/models'
-import {setDefault} from "../utils/setDefault";
+import { Paginator, PostViewModel, TypeOfRequestP_Query, TypeOfRequestQuery } from '../types/models'
+import { setDefault } from '../utils/setDefault'
 
 export const postsQueryRepo = {
 
@@ -19,7 +19,7 @@ export const postsQueryRepo = {
         const pageNumber = parseInt( setDefault(req.query.pageNumber, 1), 10 )
         const pageSize = parseInt( setDefault(req.query.pageSize, 10), 10 )
 
-        const resCount = await DB.countResults('blogs', {})
+        const resCount = await DB.countResults('posts', {})
         const pCount = Math.ceil(resCount / pageSize)
         const S = (pageNumber - 1) * pageSize
         const L = pageSize
@@ -29,7 +29,7 @@ export const postsQueryRepo = {
             page: pageNumber,
             pageSize: pageSize,
             totalCount: resCount,
-            items: await DB.getAll('blogs', {},
+            items: await DB.getAll('posts', {},
                 {}, {[sortBy]: sortDirection}, S, L) as Array<PostViewModel | null>
         }
 
@@ -47,7 +47,7 @@ export const postsQueryRepo = {
         const pageNumber = parseInt( setDefault(req.query.pageNumber, 1), 10 )
         const pageSize = parseInt( setDefault(req.query.pageSize, 10), 10 )
 
-        const resCount = await DB.countResults('blogs', {blogId: req.params.id})
+        const resCount = await DB.countResults('posts', {blogId: req.params.id})
         const pCount = Math.ceil(resCount / pageSize)
         const S = (pageNumber - 1) * pageSize
         const L = pageSize
@@ -57,7 +57,7 @@ export const postsQueryRepo = {
             page: pageNumber,
             pageSize: pageSize,
             totalCount: resCount,
-            items: await DB.getAll('blogs', {blogId: req.params.id},
+            items: await DB.getAll('posts', {blogId: req.params.id},
                 {}, {[sortBy]: sortDirection}, S, L) as Array<PostViewModel | null>
         }
 

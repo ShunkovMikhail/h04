@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body } from 'express-validator'
 import { DB } from './repositories/mongo-db'
 
 const urlRGX = new RegExp('^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$')

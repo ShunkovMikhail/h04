@@ -1,6 +1,6 @@
 import { DB } from './mongo-db'
 import { BlogViewModel, Paginator, TypeOfRequestQuery } from '../types/models'
-import {setDefault} from "../utils/setDefault";
+import { setDefault } from '../utils/setDefault'
 
 export const blogsQueryRepo = {
 
